@@ -11,12 +11,7 @@
 #define MAX_STR 100
 #define PORT 1234
 
-int Set_Socket(); // socket() 함수
-int Wait_Client(int sock);	// listen 함수
-void Str_processing(char* commend, char** argv);
 void* TCP_Server();
+int Accept_Connect(int* _sock, int* _client_sock);
 int Recv_Commend(int client_sock);
-char* Execute_Commend(char** argv);
-void Clear_Terminal();
-void Remove_Newline(char* str);
 void End_Process();

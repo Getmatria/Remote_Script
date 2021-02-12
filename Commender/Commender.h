@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -11,8 +12,10 @@
 #define PORT 1234
 #define MAX_IPLEN 15
 
-int Set_Socket();
+typedef int i_sd; // 소켓 디스크럽터를 구분하기위한 자료형 재정의
+
 void* TCP_Client();
-int Exploit_Commend(int sock);
-void End_Process();		// 프로그램 나가기
-int Continue_Process(); // 프로그램을 계속 실행할지 묻는 함수
+int Connection(char* ip);
+int Send_Commend(i_sd sock);
+int End_Process();		// 프로그램 나가기
+void Continue_Process(int* _flag); // 프로그램을 계속 실행할지 묻는 함수

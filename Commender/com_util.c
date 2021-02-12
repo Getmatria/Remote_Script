@@ -2,43 +2,41 @@
 #define MAX_PTR 4096
 #define TRUE 1
 
-typedef int i_sd; // 소켓 디스크럽터를 구분하기위한 자료형 재정의
-
 void* TCP_Client(void* ip_addr){	// send 구현
 	i_sd sock;
-	struct sockaddr_in addr;
 	
-	// 소켓 생성
-	sock = Set_Socket();
-	
-	// 소켓 정보 생성
-	memset(&addr, 0x00, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr((char*)ip_addr);
-	addr.sin_port = htons(PORT);
-	
-	// Target pc 와 연결
-	if(connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0){
-		perror("connect");
-		exit(1);
-	}
+	// Target pc와 연결
+	sock = Connection((char*)ip_addr);
 	
 	// commend를 보내는 함수
-	Exploit_Commend(sock);
+	Send_Commend(sock);
 	sleep(2);
 	close(sock);
 }
 
-int Set_Socket(){ // socket() 함수
+int Connection(char* ip){
 	i_sd _sock;	
+	struct sockaddr_in addr;
+	
 	if((_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 		perror("socket");
 		return 0;
-	}	
+	}
+	
+	memset(&addr, 0x00, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = inet_addr(ip);
+	addr.sin_port = htons(PORT);
+	
+	if(connect(_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0){
+		perror("connect");
+		return 0;
+	}
+	
 	return _sock;
 }
 
-int Exploit_Commend(i_sd sock){
+int Send_Commend(i_sd sock){
 	char cmd[MAX_STR];
 	char _recv_data[MAX_PTR];
 	char* tmp_str = "[+] commend is ";
@@ -68,42 +66,45 @@ int Exploit_Commend(i_sd sock){
 	return 0;
 }
 
-// 타겟과의 연결을 끊고
-// 화면을 clear 한다.
-void End_Process(){
+// 타겟과의 연결을 끊고 화면을 clear 한다.
+int End_Process(){
+	int flag, status;
 	pid_t pid = fork();
 	
-	if(pid > 0){
-		printf("[*] CONNECTION RESET!\n");
-		printf("[+] PROGRAM END\n");
+	if(pid < 0){
+		printf("fork() error.....\n");
 	}else if(pid == 0){
 		sleep(1);
 		execl("/usr/bin/clear", "clear", NULL);
 	}else{
-		printf("fork() error....\n");
+		wait(&status);
+		Continue_Process(&flag);
 	}
+	return flag;
 }
 
-// 프로그램을 계속 실행할지 정하는 함수
-// y를 누르면 다시 원격지 ip를 치라는 화면이 뜨고
-// n을 누르면 프로그램이 종료.
-int Continue_Process(){
+/* 
+ *
+ * 프로그램을 계속 실행할지 정하는 함수
+ * y를 누르면 다시 원격지 ip를 치라는 화면이 뜨고
+ * n을 누르면 프로그램이 종료.
+ *
+ */
+void Continue_Process(int* _flag){
 	char isContinue;
-	int flag;
 	while(TRUE){
 		printf("[*] Continue? [y/n] : ");
 		scanf(" %c", &isContinue);
 		if(isContinue == 'y' || isContinue == 'Y'){
-			flag = 1;
+			*_flag = 1;
 			break;
 		}else if(isContinue == 'n' || isContinue == 'N'){
-			flag = 0;
+			*_flag = 0;
 			break;
 		}else{
 			printf("[!] Please Enter [y/n]\n");
 			continue;
 		}
 	}
-	return flag;
 }
 

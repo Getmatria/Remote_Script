@@ -15,5 +15,6 @@ int main()
 		}
 		pthread_join(thread_id, (void*)&is_create);
 		End_Process();
+		sleep(3);
 	}
 }

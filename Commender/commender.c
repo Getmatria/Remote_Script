@@ -1,7 +1,6 @@
 #include <pthread.h>
 #include "Commender.h"
 
-
 int main()
 {
 	int is_create, thread_return, flag;
@@ -22,9 +21,10 @@ int main()
 		pthread_join(thread_id, (void*)&thread_return);
 		
 		// 쓰레드 종료 후 리소스 해제
-		End_Process();
-		sleep(2);
-		flag = Continue_Process();
+		printf("[*] CONNECTION RESET!\n");
+		printf("[*] PROGRAM END\n");
+		flag = End_Process();
+
 	}while(flag);
 	
 	return 0;
